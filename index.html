@@ -1,131 +1,47 @@
-   <!DOCTYPE html>
-   <html lang="en">
-   <head>
-       <meta charset="UTF-8">
-       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-       <title>Instagram Lite Login</title>
-       <style>
-           body {
-               font-family: Arial, sans-serif;
-               background-color: #f7f7f7;
-               display: flex;
-               justify-content: center;
-               align-items: center;
-               height: 100vh;
-               margin: 0;
-           }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chat App</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    body { font-family: Arial; background:#f9f9f9; }
+    #chat { max-width:600px; margin:50px auto; background:#fff; padding:20px; border-radius:10px; }
+    #messages { list-style:none; padding:0; max-height:300px; overflow-y:auto; }
+    #messages li { padding:5px; margin:5px 0; border-bottom:1px solid #eee; }
+    #form { display:flex; margin-top:10px; }
+    #input { flex:1; padding:10px; border:1px solid #ddd; border-radius:5px; }
+    button { margin-left:10px; padding:10px; border:none; background:#0070f3; color:#fff; border-radius:5px; }
+  </style>
+</head>
+<body>
+  <div id="chat">
+    <ul id="messages"></ul>
+    <form id="form">
+      <input id="input" autocomplete="off" placeholder="Type message..." />
+      <button>Send</button>
+    </form>
+  </div>
+  <script>
+    const socket = io();
+    const form = document.getElementById('form');
+    const input = document.getElementById('input');
+    const messages = document.getElementById('messages');
 
-           .container {
-               background-color: white;
-               padding: 20px;
-               border-radius: 5px;
-               box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-               width: 350px;
-               text-align: center;
-           }
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      if (input.value) {
+        socket.emit('chat message', input.value);
+        input.value = '';
+      }
+    });
 
-           .logo img {
-               width: 175px;
-               margin-bottom: 20px;
-           }
-
-           .login-form {
-               display: flex;
-               flex-direction: column;
-           }
-
-           .login-form input {
-               margin-bottom: 10px;
-               padding: 10px;
-               border: 1px solid #dbdbdb;
-               border-radius: 5px;
-           }
-
-           .login-form button {
-               padding: 10px;
-               background-color: #0095f6;
-               color: white;
-               border: none;
-               border-radius: 5px;
-               cursor: pointer;
-           }
-
-           .login-form button:hover {
-               background-color: #007bbf;
-           }
-
-           .forgot-password {
-               margin-top: 10px;
-               text-decoration: none;
-               color: #0095f6;
-           }
-
-           .signup-prompt {
-               margin-top: 20px;
-           }
-
-           .signup-prompt a {
-               color: #0095f6;
-               text-decoration: none;
-           }
-
-           footer {
-               margin-top: 20px;
-               font-size: 12px;
-           }
-
-           footer a {
-               color: #8e8e8e;
-               text-decoration: none;
-               margin: 0 5px;
-           }
-       </style>
-   </head>
-   <body>
-       <div class="container">
-           <div class="logo">
-               <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram Lite Logo">
-           </div>
-           <form class="login-form" id="loginForm">
-               <input type="text" id="username" placeholder="Username" required>
-               <input type="password" id="password" placeholder="Password" required>
-               <button type="submit">Log In</button>
-               <a href="#" class="forgot-password">Forgot password?</a>
-           </form>
-           <div class="signup-prompt">
-               <p>Don't have an account? <a href="#">Sign up</a></p>
-           </div>
-           <footer>
-               <p><a href="#">About</a> | <a href="#">Help</a> | <a href="#">Privacy</a> | <a href="#">Terms</a></p>
-           </footer>
-       </div>
-
-       <script>
-           document.getElementById('loginForm').addEventListener('submit', function(event) {
-               event.preventDefault();
-               const username = document.getElementById('username').value;
-               const password = document.getElementById('password').value;
-
-               fetch('/api/login', {
-                   method: 'POST',
-                   headers: {
-                       'Content-Type': 'application/json'
-                   },
-                   body: JSON.stringify({ username, password })
-               })
-               .then(response => response.json())
-               .then(data => {
-                   if (data.success) {
-                       alert(data.message);
-                   } else {
-                       alert('Login failed: ' + data.message);
-                   }
-               })
-               .catch(error => {
-                   console.error('Error:', error);
-               });
-           });
-       </script>
-   </body>
-   </html>
-   
+    socket.on('chat message', function(msg) {
+      const li = document.createElement('li');
+      li.textContent = msg;
+      messages.appendChild(li);
+      messages.scrollTop = messages.scrollHeight;
+    });
+  </script>
+</body>
+</html>
